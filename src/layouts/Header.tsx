@@ -79,6 +79,14 @@ export function Header({
         >
           Dutch Auctions
         </NavLink>
+        <NavLink
+          to="/docs"
+          className={({ isActive }) =>
+            isActive ? "header-nav-link active" : "header-nav-link"
+          }
+        >
+          Docs
+        </NavLink>
       </nav>
       <button
         ref={settingsTriggerRef}

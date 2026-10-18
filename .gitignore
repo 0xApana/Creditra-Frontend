@@ -24,3 +24,4 @@ Thumbs.db
 # Coverage and test artefacts
 coverage/
 .nyc_output/
+*.tsbuildinfo

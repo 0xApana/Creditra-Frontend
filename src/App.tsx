@@ -26,6 +26,10 @@ const NotFound = lazy(() => import("./pages/NotFound").then(m => ({ default: m.N
 const HelpCenter = lazy(() => import("./pages/HelpCenter"));
 const DutchAuctions = lazy(() => import("./pages/DutchAuctions").then(m => ({ default: m.DutchAuctions })));
 const LinkedAccounts = lazy(() => import("./pages/LinkedAccounts").then(m => ({ default: m.LinkedAccounts })));
+const RepayPage = lazy(() => import("./pages/RepayPage"));
+const Settings = lazy(() => import("./pages/Settings").then(m => ({ default: m.Settings })));
+const Profile = lazy(() => import("./pages/Profile"));
+const Docs = lazy(() => import("./pages/Docs"));
 const SessionTimeoutBanner = lazy(() => import("./components/SessionTimeoutBanner").then(m => ({ default: m.SessionTimeoutBanner })));
 const NotificationPreferences = lazy(() => import("./pages/NotificationPreferences").then(m => ({ default: m.NotificationPreferences })));
 
@@ -156,6 +160,10 @@ function App() {
                               <Route path="/dutch-auctions" element={<DutchAuctions />} />
                               <Route path="/linked-accounts" element={<LinkedAccounts />} />
                               <Route path="/notification-preferences" element={<NotificationPreferences />} />
+                              <Route path="/repay" element={<RepayPage />} />
+                              <Route path="/settings" element={<Settings />} />
+                              <Route path="/profile" element={<Profile />} />
+                              <Route path="/docs" element={<Docs />} />
                               <Route path="*" element={<NotFound />} />
                             </Routes>
                           </Suspense>

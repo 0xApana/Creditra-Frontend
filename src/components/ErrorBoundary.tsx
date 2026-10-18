@@ -1,5 +1,4 @@
 import { Component, ErrorInfo, ReactNode } from "react";
-import { Link } from "react-router-dom";
 import "../pages/ErrorPage.css";
 
 interface Props {
@@ -90,13 +89,13 @@ function ErrorPage({ error }: ErrorPageProps) {
           >
             Go Back
           </button>
-          <Link
-            to="/"
+          <a
+            href="/"
             className="error-btn error-btn-secondary"
             aria-label="Return to dashboard"
           >
             Dashboard
-          </Link>
+          </a>
           <button
             className="error-btn error-btn-secondary"
             onClick={handleReload}

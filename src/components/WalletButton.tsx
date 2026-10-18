@@ -5,6 +5,7 @@ import { OnboardingFlow } from './OnboardingFlow';
 import { WalletQrCode } from './WalletQrCode';
 import { CopyToClipboard } from './CopyToClipboard';
 import { shortenAddress } from '../utils/format-address';
+import { formatRelative } from '../utils/dates';
 import { NetworkMismatchBanner } from './NetworkMismatchBanner';
 import './WalletButton.css';
 

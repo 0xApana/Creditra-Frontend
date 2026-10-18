@@ -133,21 +133,6 @@ export function NotificationCenter({ triggerRef }: NotificationCenterProps = {})
     };
   }, []);
 
-  // Keyboard shortcut: Shift+R to mark all as read when panel is open
-  useEffect(() => {
-    if (!isPanelOpen) return;
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.shiftKey && e.key === 'r' && unreadCount > 0) {
-        e.preventDefault();
-        handleMarkAllAsRead();
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isPanelOpen, unreadCount, handleMarkAllAsRead]);
-
   const filtered = filterByCategory(activeFilter);
   const dragStartY = useRef<number | null>(null);
   const panelElRef = useRef<HTMLDivElement | null>(null);
@@ -222,6 +207,21 @@ export function NotificationCenter({ triggerRef }: NotificationCenterProps = {})
     markAllAsRead();
     announce(count);
   }, [notifications, unreadCount, addToast, dismissToast, undoRead, markAllAsRead, announce]);
+
+  // Keyboard shortcut: Shift+R to mark all as read when panel is open
+  useEffect(() => {
+    if (!isPanelOpen) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.shiftKey && e.key === 'r' && unreadCount > 0) {
+        e.preventDefault();
+        handleMarkAllAsRead();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isPanelOpen, unreadCount, handleMarkAllAsRead]);
 
   const handleClearAll = useCallback(() => {
     const prior = [...notifications];

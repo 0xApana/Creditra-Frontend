@@ -1,5 +1,7 @@
 # Creditra Frontend
 
+> **Live demo: https://LIVEURL**  (runs fully on built-in sample data, no wallet or backend needed)
+
 > Decentralized, risk-priced credit on Stellar — **without overcollateralization**.
 
 Creditra evaluates on-chain behavior to underwrite credit lines and price them dynamically.
@@ -33,6 +35,15 @@ talks to Stellar wallets via injected provider APIs.
   validation, currency/date formatters, error boundaries, copy-to-clipboard.
 
 ---
+
+## Live demo and deployment
+
+- **Live:** https://LIVEURL
+- The app is a static Vite SPA deployed on Vercel. `vercel.json` rewrites all paths to `index.html` so client-side routes work on refresh.
+- **Demo mode:** with no backend configured, every page renders from the mock data in `src/data/mockData.ts`, so no screen is ever empty or broken.
+- Routes: `/` dashboard, `/credit-lines`, `/draw-credit`, `/repay`, `/transactions`, `/open-credit`, `/dutch-auctions`, `/linked-accounts`, `/notification-preferences`, `/settings`, `/profile`, `/help`, `/docs`.
+- Deploy your own: `npm i -g vercel && vercel --prod` (build command `npm run build`, output `dist`).
+- Additional design and implementation notes live in [`docs/`](docs/) and [`docs/notes/`](docs/notes/).
 
 ## Architecture at a glance
 

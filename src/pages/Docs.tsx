@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 
-const SECTIONS: { title: string; body: string; to?: string; cta?: string }[] = [
+const SECTIONS: { id?: string; title: string; body: string; to?: string; cta?: string }[] = [
   {
     title: "What is Creditra?",
     body: "Creditra is a decentralized, risk-priced credit protocol on Stellar. Credit lines are underwritten from on-chain behaviour rather than overcollateralization, and priced dynamically by risk score.",
@@ -16,6 +16,11 @@ const SECTIONS: { title: string; body: string; to?: string; cta?: string }[] = [
     body: "Browse, filter, sort and compare your facilities. Each card shows limit, utilization, APR, risk score and a health-factor trend.",
     to: "/credit-lines",
     cta: "View credit lines",
+  },
+  {
+    id: "risk-pricing",
+    title: "Risk pricing",
+    body: "Each credit line carries a risk score derived from on-chain repayment history, utilization and wallet activity. Lower risk earns a lower APR; the rate is re-priced as your score changes, and the risk gauge on the dashboard shows which band you are in.",
   },
   {
     title: "Draw and repay",
@@ -53,6 +58,7 @@ export default function Docs() {
       {SECTIONS.map((s) => (
         <section
           key={s.title}
+          id={s.id}
           style={{
             background: "var(--surface)",
             border: "1px solid var(--border)",
@@ -63,7 +69,11 @@ export default function Docs() {
         >
           <h2 style={{ marginTop: 0, fontSize: "1.15rem" }}>{s.title}</h2>
           <p style={{ color: "var(--muted)", margin: "0.5rem 0" }}>{s.body}</p>
-          {s.to && <Link to={s.to}>{s.cta} &rarr;</Link>}
+          {s.to && (
+            <Link to={s.to} style={{ color: "var(--accent)", fontWeight: 500 }}>
+              {s.cta} &rarr;
+            </Link>
+          )}
         </section>
       ))}
     </div>

@@ -7,3 +7,6 @@ export const DEFAULT_RISK_ACK_KEY = 'creditra.default_risk_ack';
 
 /** Alias key for GrantFox campaign default-risk education acknowledgment */
 export const GRANTFOX_RISK_EDUCATION_ACK_KEY = 'grantfox_risk_education_acknowledged';
+
+/** Set when a first-time borrower dismisses the inline default-risk primer banner on /draw-credit */
+export const DEFAULT_RISK_BANNER_DISMISSED_KEY = 'creditra.default_risk_banner_dismissed';

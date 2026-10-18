@@ -59,8 +59,11 @@ export const DutchAuctionCard: React.FC<DutchAuctionCardProps> = ({ auction, onP
 
   return (
     <div className="card" style={{ padding: '1rem', marginBottom: '1rem' }}>
-      <div style={{ display: 'flex', gap: '1rem' }}>
+      <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
         <img
+          width={120}
+          height={120}
+          loading="lazy"
           src={auction.nft.image}
           alt={auction.nft.name}
           style={{
@@ -68,11 +71,13 @@ export const DutchAuctionCard: React.FC<DutchAuctionCardProps> = ({ auction, onP
             height: '120px',
             borderRadius: '8px',
             objectFit: 'cover',
+            flexShrink: 0,
+            background: COLOR.surface,
             border: `1px solid ${COLOR.border}`,
           }}
         />
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+        <div style={{ flex: '1 1 220px', minWidth: 0 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.5rem' }}>
             <div style={{ marginBottom: '0.5rem' }}>
               <h3 style={{ margin: 0, color: COLOR.text, fontSize: '1.1rem' }}>
                 {auction.nft.name}
@@ -150,7 +155,18 @@ export const DutchAuctionCard: React.FC<DutchAuctionCardProps> = ({ auction, onP
             <div style={{ marginTop: '1rem' }}>
               <PendingButton
                 onClick={() => onPurchase?.(auction.id, currentPrice)}
-                style={{ width: '100%' }}
+                style={{
+                  width: '100%',
+                  minHeight: '44px',
+                  padding: '0.625rem 1rem',
+                  borderRadius: '8px',
+                  border: `1px solid ${COLOR.accent}`,
+                  background: COLOR.accent,
+                  color: COLOR.bg,
+                  fontWeight: 600,
+                  fontSize: '0.95rem',
+                  cursor: 'pointer',
+                }}
               >
                 Purchase Now for {fmt(currentPrice)}
               </PendingButton>

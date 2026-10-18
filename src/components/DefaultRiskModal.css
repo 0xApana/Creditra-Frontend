@@ -298,3 +298,41 @@
   transition: none !important;
   transform: none !important;
 }
+
+.default-risk-header-end {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.default-risk-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: 1px solid var(--border, #30363d);
+  background: transparent;
+  color: var(--muted, #8b949e);
+  cursor: pointer;
+}
+.default-risk-close:hover {
+  color: var(--text, #e6edf3);
+}
+.default-risk-close:focus-visible {
+  outline: 2px solid var(--accent, #58a6ff);
+  outline-offset: 2px;
+}
+@media (max-width: 480px) {
+  .default-risk-card {
+    padding: 1.25rem 1rem;
+    min-height: 0;
+  }
+  .default-risk-header {
+    gap: 0.5rem;
+  }
+  /* The numbered stepper already conveys progress on small screens. */
+  .default-risk-step-counter {
+    display: none;
+  }
+}

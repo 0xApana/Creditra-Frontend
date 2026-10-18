@@ -1,5 +1,5 @@
-import { Link, NavLink } from "react-router-dom";
-import type { RefObject } from "react";
+import { Link, NavLink, useLocation } from "react-router-dom";
+import { useEffect, useRef, type RefObject } from "react";
 import { NetworkStatus } from "../components/NetworkStatus";
 import { KycTriggerButton } from "../components/KycDrawer";
 import { QuickRepayTrigger } from "../components/QuickRepayTrigger";
@@ -22,12 +22,24 @@ export function Header({
   onSettingsClick,
   onKycClick,
 }: HeaderProps) {
+  const navRef = useRef<HTMLElement>(null);
+  const { pathname } = useLocation();
+
+  // On narrow screens the nav is a horizontally scrolling row; keep the
+  // active link in view (adjust scrollLeft only, never the page scroll).
+  useEffect(() => {
+    const nav = navRef.current;
+    const active = nav?.querySelector<HTMLElement>(".header-nav-link.active");
+    if (!nav || !active || nav.scrollWidth <= nav.clientWidth) return;
+    nav.scrollLeft = active.offsetLeft - nav.offsetLeft - (nav.clientWidth - active.offsetWidth) / 2;
+  }, [pathname]);
+
   return (
     <header className="header">
       <Link to="/" className="logo">
         Creditra
       </Link>
-      <nav className="header-nav">
+      <nav className="header-nav" ref={navRef} aria-label="Primary">
         {/*
           NavLink with render function allows us to:
           1. Apply active class for styling (accent + underline + weight)

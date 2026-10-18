@@ -34,7 +34,11 @@ import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { useReducedMotion } from "@/context/ReducedMotionContext";
 import { loadDraft, saveDraft, clearDraft } from "@/state/wizardDraft";
 import { readJson, writeJson } from "@/utils/storage";
-import { DEFAULT_RISK_ACK_KEY, GRANTFOX_RISK_EDUCATION_ACK_KEY } from "@/constants/storageKeys";
+import {
+  DEFAULT_RISK_ACK_KEY,
+  DEFAULT_RISK_BANNER_DISMISSED_KEY,
+  GRANTFOX_RISK_EDUCATION_ACK_KEY,
+} from "@/constants/storageKeys";
 import { DefaultRiskModal } from "@/components/DefaultRiskModal";
 import { CreditLineSelector } from "@/components/CreditLineSelector";
 import { AmountInput } from "@/components/AmountInput";
@@ -81,13 +85,16 @@ export default function DrawCreditPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const isLearnMode = searchParams.get("learn") === "1";
 
-  const [isRiskModalOpen, setIsRiskModalOpen] = useState(() => {
-    if (isLearnMode) return true;
-    const isAck =
+  // The default-risk education is offered, never forced: first-time borrowers
+  // see a dismissible inline banner (remembered in localStorage) and can open
+  // the 3-step modal from it. `?learn=1` still opens the modal directly.
+  const [hasAcknowledgedRisk, setHasAcknowledgedRisk] = useState(
+    () =>
       readJson<boolean>(DEFAULT_RISK_ACK_KEY, false) ||
-      readJson<boolean>(GRANTFOX_RISK_EDUCATION_ACK_KEY, false);
-    return !isAck;
-  });
+      readJson<boolean>(GRANTFOX_RISK_EDUCATION_ACK_KEY, false) ||
+      readJson<boolean>(DEFAULT_RISK_BANNER_DISMISSED_KEY, false)
+  );
+  const [isRiskModalOpen, setIsRiskModalOpen] = useState(() => isLearnMode);
 
   useEffect(() => {
     if (isLearnMode) {
@@ -95,19 +102,27 @@ export default function DrawCreditPage() {
     }
   }, [isLearnMode]);
 
-  const handleRiskModalAcknowledge = useCallback(() => {
+  const closeRiskModal = useCallback(() => {
     if (isLearnMode) {
-      // In learn mode, strip ?learn=1 from URL without adding history entry and do NOT overwrite localStorage
+      // Strip ?learn=1 from the URL without adding a history entry.
       const nextParams = new URLSearchParams(searchParams);
       nextParams.delete("learn");
       setSearchParams(nextParams, { replace: true });
-    } else {
-      // First-time borrower gate: record acknowledgment in localStorage
-      writeJson(DEFAULT_RISK_ACK_KEY, true);
-      writeJson(GRANTFOX_RISK_EDUCATION_ACK_KEY, true);
     }
     setIsRiskModalOpen(false);
   }, [isLearnMode, searchParams, setSearchParams]);
+
+  const handleRiskModalAcknowledge = useCallback(() => {
+    writeJson(DEFAULT_RISK_ACK_KEY, true);
+    writeJson(GRANTFOX_RISK_EDUCATION_ACK_KEY, true);
+    setHasAcknowledgedRisk(true);
+    closeRiskModal();
+  }, [closeRiskModal]);
+
+  const handleDismissRiskBanner = useCallback(() => {
+    writeJson(DEFAULT_RISK_BANNER_DISMISSED_KEY, true);
+    setHasAcknowledgedRisk(true);
+  }, []);
 
   const { queueAction } = useOnline();
   const routeTransaction = location.state?.transaction as Transaction | undefined;
@@ -325,12 +340,38 @@ export default function DrawCreditPage() {
       <DefaultRiskModal
         isOpen={isRiskModalOpen}
         onAcknowledge={handleRiskModalAcknowledge}
+        onDismiss={closeRiskModal}
       />
       <LiveRegion
         id="draw-wizard-progress-announcement"
         message={microProgressAnnouncement}
       />
       <div className="dc-page__inner">
+        {!hasAcknowledgedRisk && !isRiskModalOpen && (
+          <div className="dc-risk-banner" role="note">
+            <p className="dc-risk-banner__text">
+              <strong>First draw?</strong> Take a 1-minute primer on what a
+              default is and how to avoid one.
+            </p>
+            <div className="dc-risk-banner__actions">
+              <button
+                type="button"
+                className="dc-risk-banner__learn"
+                onClick={() => setIsRiskModalOpen(true)}
+              >
+                Learn about default risk
+              </button>
+              <button
+                type="button"
+                className="dc-risk-banner__dismiss"
+                onClick={handleDismissRiskBanner}
+                aria-label="Dismiss default-risk primer"
+              >
+                Dismiss
+              </button>
+            </div>
+          </div>
+        )}
         <div className="dc-page__card">
           {step === "select" && (
             <>

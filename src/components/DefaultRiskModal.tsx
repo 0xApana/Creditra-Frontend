@@ -15,13 +15,13 @@
  *   - triggerRef: optional React ref to the DOM element that triggered the modal (for focus restoration)
  *
  * Trigger Conditions:
- *   - First-time gate: `creditra.default_risk_ack` is absent or falsy in localStorage.
+ *   - Opened from the inline primer banner on /draw-credit (first-time borrowers), never auto-opened.
  *   - Learn mode: URL query parameter `?learn=1` forces display regardless of prior acknowledgement.
  *   - Dismissal in learn mode removes `?learn=1` without overwriting localStorage.
  *
  * Accessibility (WCAG 2.1 AA Compliance):
- *   - Criterion 2.1.2 (No Keyboard Trap): Focus is constrained within the dialog via `useFocusTrap`.
- *     Escape key intentionally does not dismiss the modal to ensure mandatory education compliance.
+ *   - Criterion 2.1.2 (No Keyboard Trap): Focus is constrained within the dialog via `useFocusTrap`;
+ *     Escape, the close button and a backdrop click dismiss it when `onDismiss` is provided.
  *   - Criterion 2.4.3 (Focus Order): Focus is placed on the first interactive control on mount and
  *     restored to `triggerRef` or prior active element on close.
  *   - Criterion 4.1.2 (Name, Role, Value): Modal container implements `role="dialog"`, `aria-modal="true"`,
@@ -34,7 +34,7 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { AlertCircle, AlertTriangle, ShieldCheck, Check } from 'lucide-react';
+import { AlertCircle, AlertTriangle, ShieldCheck, Check, X } from 'lucide-react';
 import { useFocusTrap } from '@/hooks/useFocusTrap';
 import { useBodyScrollLock } from '@/hooks/useBodyScrollLock';
 import { useInertBackdrop } from '@/hooks/useInertBackdrop';
@@ -44,6 +44,11 @@ import './DefaultRiskModal.css';
 export interface DefaultRiskModalProps {
   isOpen: boolean;
   onAcknowledge: () => void;
+  /**
+   * Called when the user closes the modal without finishing (close button,
+   * Escape or backdrop click). When omitted the modal is non-dismissible.
+   */
+  onDismiss?: () => void;
   triggerRef?: React.RefObject<HTMLElement | null>;
 }
 
@@ -83,6 +88,7 @@ const STEPS: StepContent[] = [
 export function DefaultRiskModal({
   isOpen,
   onAcknowledge,
+  onDismiss,
   triggerRef,
 }: DefaultRiskModalProps) {
   const [currentStep, setCurrentStep] = useState(0);
@@ -101,7 +107,7 @@ export function DefaultRiskModal({
   const dialogRef = useFocusTrap({
     isActive: isOpen,
     triggerRef,
-    // Note: Do NOT provide onEscape. Escape must NOT close the modal per REQ-2.2 and REQ-4.5.
+    // Escape is handled by handleDialogKeyDown (dismisses only when onDismiss is provided).
   });
 
   useBodyScrollLock({ isLocked: isOpen });
@@ -132,9 +138,9 @@ export function DefaultRiskModal({
     if (event.key === 'Escape') {
       event.preventDefault();
       event.stopPropagation();
-      // Explicitly non-dismissible: do nothing
+      onDismiss?.();
     }
-  }, []);
+  }, [onDismiss]);
 
   if (!isOpen) return null;
 
@@ -143,7 +149,10 @@ export function DefaultRiskModal({
       id={MODAL_ID}
       className="default-risk-overlay"
       role="presentation"
-      onClick={(e) => e.stopPropagation()}
+      onClick={(e) => {
+        e.stopPropagation();
+        if (e.target === e.currentTarget) onDismiss?.();
+      }}
     >
       <div
         ref={dialogRef}
@@ -165,8 +174,20 @@ export function DefaultRiskModal({
           <span className="default-risk-badge">
             <span aria-hidden="true">⚠️</span> Borrower Education Gate
           </span>
-          <span className="default-risk-step-counter" aria-hidden="true">
-            Step {currentStep + 1} of {STEPS.length}
+          <span className="default-risk-header-end">
+            <span className="default-risk-step-counter" aria-hidden="true">
+              Step {currentStep + 1} of {STEPS.length}
+            </span>
+            {onDismiss && (
+              <button
+                type="button"
+                className="default-risk-close"
+                onClick={onDismiss}
+                aria-label="Close default-risk education"
+              >
+                <X className="w-4 h-4" aria-hidden="true" />
+              </button>
+            )}
           </span>
         </header>
 

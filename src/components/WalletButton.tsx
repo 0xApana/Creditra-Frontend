@@ -4,9 +4,7 @@ import { WalletConnectionModal } from './WalletConnectionModal';
 import { OnboardingFlow } from './OnboardingFlow';
 import { WalletQrCode } from './WalletQrCode';
 import { CopyToClipboard } from './CopyToClipboard';
-import { shortenAddress } from '../utils/format-address';
 import { formatRelative } from '../utils/dates';
-import { NetworkMismatchBanner } from './NetworkMismatchBanner';
 import './WalletButton.css';
 
 export const WalletButton = () => {
@@ -17,8 +15,6 @@ export const WalletButton = () => {
     status,
     connect,
     disconnect,
-    hasNetworkMismatch,
-    switchNetwork,
     isRemembered,
     forgetRememberedChoice,
   } = useWallet();
@@ -133,12 +129,6 @@ export const WalletButton = () => {
 
     return (
       <div className="wallet-connected">
-        <NetworkMismatchBanner
-          currentNetwork={wallet.network}
-          expectedNetwork="PUBLIC"
-          walletType={wallet.type}
-          onSwitchNetwork={switchNetwork}
-        />
         <button
           className="wallet-address-btn"
           onClick={handleToggleDropdown}
@@ -234,14 +224,6 @@ export const WalletButton = () => {
 
   return (
     <>
-      {hasNetworkMismatch && (
-        <NetworkMismatchBanner
-          currentNetwork={wallet?.network ?? null}
-          expectedNetwork="PUBLIC"
-          walletType={wallet?.type ?? 'freighter'}
-          onSwitchNetwork={switchNetwork}
-        />
-      )}
       <button className="connect-wallet-btn" onClick={handleConnect}>
         Connect Wallet
       </button>

@@ -1,6 +1,9 @@
 import { WalletType, WalletInfo, WalletConnectError, WalletErrorType } from '../types/wallet';
 import { readJson, writeJson, removeKey } from './storage';
 
+// Re-export types for convenience
+export { WalletConnectError, type WalletType, type WalletErrorType } from '../types/wallet';
+
 // ─── Error classification and user-facing copy ─────────────────────────────────
 
 /**

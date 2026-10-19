@@ -26,8 +26,6 @@ describe('WalletButton Component', () => {
     setDropdownOpen: mockSetDropdownOpen,
     forgetRememberedChoice: mockForgetRememberedChoice,
     isRemembered: false,
-    hasNetworkMismatch: false,
-    switchNetwork: vi.fn(),
     balances: null,
     lastUpdated: null,
     refreshBalance: vi.fn(),
@@ -181,6 +179,33 @@ describe('WalletButton Component', () => {
 });
 
 describe('WalletButton — onboarding flow gating (#1231)', () => {
+  const mockConnect = vi.fn();
+  const mockDisconnect = vi.fn();
+  const mockSetDropdownOpen = vi.fn();
+  const mockForgetRememberedChoice = vi.fn();
+
+  const mockWallet = (overrides: Record<string, unknown> = {}) => ({
+    wallet: null,
+    status: 'disconnected' as const,
+    connect: mockConnect,
+    disconnect: mockDisconnect,
+    setDropdownOpen: mockSetDropdownOpen,
+    forgetRememberedChoice: mockForgetRememberedChoice,
+    isRemembered: false,
+    balances: null,
+    lastUpdated: null,
+    refreshBalance: vi.fn(),
+    clearError: vi.fn(),
+    dismissReconnectBanner: vi.fn(),
+    retryReconnect: vi.fn(),
+    reconnectTimedOut: false,
+    error: null,
+    stayConnected: vi.fn(),
+    refreshWalletIdentity: vi.fn(),
+    sessionTimeoutWarning: false,
+    ...overrides,
+  });
+
   beforeEach(() => {
     vi.clearAllMocks();
     // Clear localStorage to ensure clean state

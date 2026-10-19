@@ -42,8 +42,14 @@ export const WalletButton = () => {
     provider: Parameters<typeof connect>[0],
     options?: Parameters<typeof connect>[1]
   ) => {
-    await connect(provider, options);
-    handleSuccess();
+    const result = await connect(provider, options);
+    // Only proceed to success flow if connection succeeded
+    if (result.ok) {
+      handleSuccess();
+    } else {
+      // Re-throw the error so the modal can catch it and stay open
+      throw result.error;
+    }
   };
 
   const handleToggleDropdown = () => {

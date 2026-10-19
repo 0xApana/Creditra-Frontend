@@ -103,6 +103,7 @@ import {
 } from 'react';
 import type { ReactNode } from 'react';
 import type { WalletInfo, ConnectionStatus, WalletError, WalletType } from '../types/wallet';
+import { WalletConnectError } from '../types/wallet';
 import {
   connectWallet,
   disconnectWallet,
@@ -111,6 +112,7 @@ import {
   recordRecentWallet,
   isWalletRemembered,
   setWalletRemembered,
+  classifyWalletError,
 } from '../utils/wallet';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -169,6 +171,11 @@ export interface ConnectOptions {
   remember?: boolean;
 }
 
+/** Result of a connect attempt. */
+export type ConnectResult =
+  | { ok: true; wallet: WalletInfo }
+  | { ok: false; error: WalletConnectError };
+
 interface WalletContextType {
   /** The currently connected wallet, or `null` when disconnected. */
   wallet: WalletInfo | null;
@@ -201,13 +208,19 @@ interface WalletContextType {
    * Open a connection to the given wallet. Updates `status` to
    * `connecting`, then either `connected` (on success) or `error`.
    *
+   * Returns a result object that lets callers distinguish success from
+   * failure without checking context state. On success, `{ ok: true, wallet }`
+   * is returned. On failure, `{ ok: false, error }` is returned and the
+   * context's `error` and `status` fields are also updated for backward
+   * compatibility with existing consumers like WalletReconnectBanner.
+   *
    * Successful connections are added to the MRU list so the modal can
    * order wallets by recency.  Passing `{ remember: true }` additionally
    * persists an opt-in flag that drives next-visit auto-reconnect.  The
    * flag defaults to `false` because acceptance criteria require the
    * preference to be opt-in, not pre-checked.
    */
-  connect: (type: WalletType, options?: ConnectOptions) => Promise<void>;
+  connect: (type: WalletType, options?: ConnectOptions) => Promise<ConnectResult>;
   /** Forget the current wallet, clear preference, return to disconnected state. */
   disconnect: () => void;
   /**
@@ -414,7 +427,7 @@ export const WalletProvider = ({
 
   // ── User-initiated connection ───────────────────────────────────────────────
 
-  const connect = async (type: WalletType, options?: ConnectOptions) => {
+  const connect = async (type: WalletType, options?: ConnectOptions): Promise<ConnectResult> => {
     clearReconnectTimeout();
     setStatus('connecting');
     setError(null);
@@ -434,14 +447,21 @@ export const WalletProvider = ({
       setWalletRemembered(shouldRemember);
       setIsRemembered(shouldRemember);
       startSessionTimers();
+      return { ok: true, wallet: walletInfo };
     } catch (err) {
-      setError(err as WalletError);
+      // Ensure the error is properly classified
+      const walletError = err instanceof WalletConnectError 
+        ? err 
+        : classifyWalletError(err);
+      
+      setError(walletError);
       setStatus('error');
       setWallet(null);
       clearSessionTimers();
       setSessionTimeoutWarning(false);
       // Don't write any remembered state on failure: leaving stale
       // persistence around has confused earlier releases.
+      return { ok: false, error: walletError };
     }
   };
 
